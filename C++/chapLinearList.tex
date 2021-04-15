@@ -5,3 +5,201 @@
 \item 链式存储：单链表，双向链表，循环单链表，循环双向链表
 \item 二者结合：静态链表
 \myenddot
+
+\Note{
+std::array Defined in header <array>
+}
+\begin{NoteCode}
+template <class Ty, std::size_t N>
+class array;
+\end{NoteCode}
+
+\Note{\\
+\textbf{parameters}: \\
+\fn{Ty} 元素的类型; \\
+\fn{N} 元素数量。\\
+\\
+\textbf{Members}: \\
+\underline{const_iterator}	The type of a constant iterator for the controlled sequence.( \fn{for (Array::const_iterator it = a.begin(); it != a.end(); ++it);} )\\
+\underline{const_pointer}	The type of a constant pointer to an element. ( \fn{Array::const_pointer ptr = \&*a.begin();} ) \\
+\underline{const_reference}	The type of a constant reference to an element. ( \fn{Array::const_reference ref = *a.begin();} )\\
+\underline{const_reverse_iterator}	The type of a constant reverse iterator for the controlled sequence. ( \fn{Array::const_reverse_iterator it = a.rbegin();} ) \\
+\underline{difference_type}	The type of a signed distance between two elements. ( \fn{Array::difference_type diff = a.begin() - a.end();} )\\
+\underline{iterator}	The type of an iterator for the controlled sequence. ( \fn{for (Array::iterator it = a.begin(); it != a.end(); ++it)} ) \\
+\underline{pointer}	The type of a pointer to an element. ( \fn{Array::pointer ptr = \&*a.begin();} ) \\
+\underline{reference}	The type of a reference to an element. (\fn{Array::reference ref = *a.begin();} ) \\
+\underline{reverse_iterator}	The type of a reverse iterator for the controlled sequence. ( \fn{Array::reverse_iterator it = a.rbegin();} ) \\
+\underline{size_type}	The type of an unsigned distance between two elements. ( \fn{Array::size_type diff = a.end() - a.begin();} ) \\
+\underline{value_type}	The type of an element. (\fn{Array::value_type val = *a.begin();}) \\
+\\
+\textbf{Member Function}: \\
+\underline{array}	Constructs an array object. \\
+\underline{assign}	(Obsolete. Use fill.) Replaces all elements. \\
+\underline{at}	Accesses an element at a specified position. ( \fn{a.at(1);} ) \\
+\underline{back}	Accesses the last element. \\
+\underline{begin}	Designates the beginning of the controlled sequence. \\
+\underline{cbegin}	Returns a random-access const iterator to the first element in the array. \\
+\underline{cend}	Returns a random-access const iterator that points just beyond the end of the array. \\
+\underline{crbegin}	Returns a const iterator to the first element in a reversed array. \\
+\underline{crend}	Returns a const iterator to the end of a reversed array. \\
+\underline{data}	Gets the address of the first element. \\
+\underline{empty}	Tests whether elements are present. \\
+\underline{end}	Designates the end of the controlled sequence. \\
+\underline{fill}	Replaces all elements with a specified value. \\
+\underline{front}	Accesses the first element. \\
+\underline{max_size}	Counts the number of elements. \\
+\underline{rbegin}	Designates the beginning of the reversed controlled sequence. \\
+\underline{rend}	Designates the end of the reversed controlled sequence. \\
+\underline{size}	Counts the number of elements. \\
+\underline{swap}	Swaps the contents of two containers. \\
+\\
+\textbf{Operator}:\\
+\underline{array::operator=}	Replaces the controlled sequence.\\
+\underline{array::operator[]}	Accesses an element at a specified position.\\
+}
+
+\Dl
+
+\Note{
+std::vector Defined in header <vector>
+}
+
+\begin{NoteCode}
+template <class Type, class Allocator = allocator<Type>>
+class vector
+\end{NoteCode}
+
+\Note{
+\textbf{Member functions}\\
+\underline{assign}	Erases a vector and copies the specified elements to the empty vector.\\
+\underline{at}	Returns a reference to the element at a specified location in the vector.\\
+\underline{back}	Returns a reference to the last element of the vector.\\
+\underline{begin}	Returns a random-access iterator to the first element in the vector.\\
+\underline{capacity}	Returns the number of elements that the vector could contain without allocating more storage.\\
+\underline{cbegin}	Returns a random-access const iterator to the first element in the vector.\\
+\underline{cend}	Returns a random-access const iterator that points just beyond the end of the vector.\\
+\underline{crbegin}	Returns a const iterator to the first element in a reversed vector.\\
+\underline{crend}	Returns a const iterator to the end of a reversed vector.\\
+\underline{clear}	Erases the elements of the vector.\\
+\underline{data}	Returns a pointer to the first element in the vector.\\
+\underline{emplace}	Inserts an element constructed in place into the vector at a specified position. ( \fn{vv1.emplace( vv1.begin(), move( vector <int>(1,2) ) );} ) \\
+\underline{emplace_back}	Adds an element constructed in place to the end of the vector. ( \fn{v.emplace_back(1, 3.14);} ) \\
+\underline{empty}	Tests if the vector container is empty.\\
+\underline{end}	Returns a random-access iterator that points to the end of the vector.\\
+\underline{erase}	Removes an element or a range of elements in a vector from specified positions. ( \fn{iterator erase(const_iterator position); \\
+iterator erase(const_iterator first,const_iterator last);} ) \\
+\underline{front}	Returns a reference to the first element in a vector.\\
+\underline{get_allocator}	Returns an object to the allocator class used by a vector.\\
+\underline{insert}	Inserts an element or many elements into the vector at a specified position.( \fn{\\iterator insert(const_iterator position, const Type\& value);\\
+iterator insert(const_iterator position, Type\&\& value);\\
+void insert(const_iterator position, size_type count, const Type\& value);\\
+template <class InputIterator>
+void insert(const_iterator position, InputIterator first,InputIterator last);
+} )\\
+\underline{max_size}	Returns the maximum length of the vector.\\
+\underline{pop_back}	Deletes the element at the end of the vector.\\
+\underline{push_back}	Add an element to the end of the vector.\\
+\underline{rbegin}	Returns an iterator to the first element in a reversed vector.\\
+\underline{rend}	Returns an iterator to the end of a reversed vector.\\
+\underline{reserve}	Reserves a minimum length of storage for a vector object.\\
+\underline{resize}	Specifies a new size for a vector.\\
+\underline{shrink_to_fit}	Discards excess capacity.(丢弃空闲内存)\\
+\underline{size} Returns the number of elements in the vector.\\
+\underline{swap}	Exchanges the elements of two vectors.\\
+}
+
+
+\Dl
+
+\Note{std::deque Defined in header <deque>}
+
+\begin{NoteCode}
+template <class Type, class Allocator =allocator<Type>>
+class deque
+\end{NoteCode}
+
+\Note{
+\\
+\textbf{Member functions}\\
+$\cdots$\\
+\underline{emplace}	Inserts an element constructed in place into the deque at a specified position.\\
+\underline{emplace_back}	Adds an element constructed in place to the end of the deque.\\
+\underline{emplace_front}	Adds an element constructed in place to the start of the deque.\\
+\underline{insert}	Inserts an element, several elements, or a range of elements into the deque at a specified position.\\
+\underline{max_size}	Returns the maximum possible length of the deque.\\
+\underline{pop_back}	Erases the element at the end of the deque.\\
+\underline{pop_front}	Erases the element at the start of the deque.\\
+\underline{push_back}	Adds an element to the end of the deque.\\
+\underline{push_front}	Adds an element to the start of the deque.\\
+\underline{resize}	Specifies a new size for a deque.\\
+$\cdots$\\
+}
+
+\Dl
+
+\Note{std::list Defined in header <list>}
+
+\begin{NoteCode}
+template <class Type, class Allocator= allocator<Type>>
+class list
+\end{NoteCode}
+
+\Note{
+\\
+\textbf{Member functions}\\
+$\cdots$\\
+\underline{merge}	Removes the elements from the argument list, inserts them into the target list, and orders the new, combined set of elements in ascending order or in some other specified order. ( \fn{\\
+void merge(list<Type, Allocator>\& right);\\
+template <class Traits>\\
+void merge(list<Type, Allocator>\& right, Traits comp);
+} ) \\
+\underline{remove}	Erases elements in a list that match a specified value. (\fn{void remove(const Type\& val);}) \\
+\underline{remove_if}	Erases elements from the list for which a specified predicate is satisfied. (\fn{template <class Predicate>
+void remove_if(Predicate pred);\\
+l.remove_if( is_odd<int>( ) );}) \\
+\underline{reverse}	Reverses the order in which the elements occur in a list.\\
+\underline{sort}	Arranges the elements of a list in ascending order or with respect to some other order relation. ( \fn{void sort(); \\
+template <class Traits>
+    void sort(Traits comp);} )\\
+\underline{splice}	Removes elements from the argument list and inserts them into the target list. (\fn{ \\
+// insert the entire source list 会在position后把list\&x所有的元素到剪接到要操作的list对象\\
+void splice(const_iterator Where, list<Type, Allocator>\& Source);\\
+void splice(const_iterator Where, list<Type, Allocator>\&\& Source);\\
+// insert one element of the source list 只会把it的值剪接到要操作的list对象中\\
+void splice(const_iterator Where, list<Type, Allocator>\& Source, const_iterator Iter);\\
+void splice(const_iterator Where, list<Type, Allocator>\&\& Source, const_iterator Iter);\\
+// insert a range of elements from the source list 把first 到 last 剪接到要操作的list对象中\\
+void splice(const_iterator Where, list<Type, Allocator>\& Source, const_iterator First, const_iterator Last);\\
+void splice(const_iterator Where, list<Type, Allocator>\&\& Source, const_iterator First, const_iterator Last);
+})\\
+\underline{unique}	Removes adjacent duplicate elements or adjacent elements that satisfy some other binary predicate from the list.(连续重复\fn{void unique(); \\
+template <class BinaryPredicate>
+void unique(BinaryPredicate pred);})\\
+$\cdots$\\
+}
+
+
+\Dl
+
+\Note{std::forward_list Defined in header <forward_list>}
+
+\begin{NoteCode}
+template <class Type, class Allocator = allocator<Type>>
+class forward_list
+\end{NoteCode}
+
+\Note{
+\\
+\textbf{Member functions}\\
+$\cdots$\\
+\underline{before_begin}	Returns an iterator addressing the position before the first element in a forward list.\\
+\underline{emplace_after}	Move constructs a new element after a specified position.\\
+\underline{emplace_front}	Adds an element constructed in place to the beginning of the list.\\
+\underline{erase_after}	Removes elements from the forward list after a specified position.\\
+\underline{insert_after}	Adds elements to the forward list after a specified position.\\
+\underline{merge}	Removes the elements from the argument list, inserts them into the target forward list, and orders the new, combined set of elements in ascending order or in some other specified order.\\
+\underline{pop_front}	Deletes the element at the beginning of a forward list.\\
+\underline{push_front}	Adds an element to the beginning of a forward list.\\
+\underline{splice_after}	Restitches links between nodes.\\
+$\cdots$\\
+}

@@ -28,6 +28,11 @@ size_t strlen(const char *str) {
 }
 \end{Code}
 
+\Note{
+1. \fn{const int*p=\&a}（在*前面）；当把 \fn{const} 放最前面的时候，它修饰的就是 \fn{*p}，\fn{*p} 表示的是指针变量 \fn{p} 所指向的内存单元里面的内容，此时这个内容不可变。\\
+2. \fn{int*const p=\&a}；此时 \fn{const} 修饰的是 \fn{p}，所以 \fn{p} 中存放的内存单元的地址不可变，而内存单元中的内容可变。（变成一个引用）\\
+3. \fn{const int*const p=\&a}；此时 \fn{*p} 和 \fn{p} 都被修饰了，那么 \fn{p} 中存放的内存单元的地址和内存单元中的内容都不可变。
+}
 
 \subsection{strcpy}
 
@@ -48,8 +53,7 @@ char* strcpy(char *to, const char *from);
 char* strcpy(char *to, const char *from) {
     assert(to != NULL && from != NULL);
     char *p = to;
-    while ((*p++ = *from++) != '\0')
-        ;
+    while ((*p++ = *from++) != '\0');
     return to;
 }
 \end{Code}
@@ -59,27 +63,25 @@ char* strcpy(char *to, const char *from) {
 
 
 \subsubsection{描述}
-实现 \fn{strstr}，子串查找函数，函数原型如下：
+实现 \fn{strstr}，子串查找函数\Note{在\fn{haystack}中找\fn{needle}}，函数原型如下：
 \begin{Code}
 char * strstr(const char *haystack, const char *needle);
 \end{Code}
 
-
 \subsubsection{分析}
 暴力算法的复杂度是 $O(m*n)$，代码如下。其他算法见第\S \ref{sec:substring-search}节 “子串查找”。
-
 
 \subsubsection{代码}
 \begin{Code}
 char *strstr(const char *haystack, const char *needle) {
     // if needle is empty return the full string
-    if (!*needle) return (char*) haystack;
+    // if (!*needle) return (char*) haystack;
 
     const char *p1;
     const char *p2;
     const char *p1_advance = haystack;
     for (p2 = &needle[1]; *p2; ++p2) {
-        p1_advance++;   // advance p1_advance M-1 times
+        p1_advance++;   // advance p1_advance M-1(strlen(needle)-1) times
     }
 
     for (p1 = haystack; *p1_advance; p1_advance++) {
@@ -96,6 +98,26 @@ char *strstr(const char *haystack, const char *needle) {
     return NULL;
 }
 \end{Code}
+\begin{NoteCode}
+int strStr(string haystack, string needle) {
+    if(needle.empty()) return 0;
+    if(haystack.empty() || haystack.length() < needle.length()) return -1;
+    const char *p1;
+    const char *p2;
+    const char *p1_advance = &haystack[needle.length() - 1];
+    for (p1 = &haystack[0]; *p1_advance; p1_advance++) {
+        char *p1_old = (char*) p1;
+        p2 = &needle[0];
+        while (*p1 && *p2 && *p1 == *p2) {
+            p1++;
+            p2++;
+        }
+        if (!*p2) return p1_old - &haystack[0];
+        p1 = p1_old + 1;
+    }
+    return -1;
+}
+\end{NoteCode}
 
 
 \subsubsection{相关题目}
@@ -132,7 +154,7 @@ The string can contain additional characters after those that form the integral 
 
 If the first sequence of non-whitespace characters in str is not a valid integral number, or if no such sequence exists because either str is empty or it contains only whitespace characters, no conversion is performed.
 
-If no valid conversion could be performed, a zero value is returned. If the correct value is out of the range of representable values, \fn{INT_MAX (2147483647)} or \fn{INT_MIN (-2147483648)} is returned.
+If no valid conversion could be performed, a zero value is returned. If the correct value is out of the range of representable values, \fn{INT_MAX (2147483647)} \Note{\#7FFF FFFF} or \fn{INT_MIN (-2147483648)} \Note{\# 8000 0000} is returned.
 
 注意几个测试用例：
 \begin{enumerate}
@@ -150,7 +172,7 @@ int atoi(const char *str) {
     const int len = strlen(str);
     int i = 0;
 
-    while (str[i] == ' ' && i < len) i++;
+    while (str[i] == ' ' && i < len) i++; //删除前面的空格
 
     if (str[i] == '+') i++;
 
@@ -160,9 +182,8 @@ int atoi(const char *str) {
     }
 
     for (; i < len; i++) {
-        if (str[i] < '0' || str[i] > '9')
-            break;
-        if (num > INT_MAX / 10 ||
+        if (str[i] < '0' || str[i] > '9') break;
+        if (num > INT_MAX / 10 ||                     //再增加一位便溢出
                 (num == INT_MAX / 10 &&
                         (str[i] - '0') > INT_MAX % 10)) {
             return sign == -1 ? INT_MIN : INT_MAX;
@@ -227,8 +248,9 @@ void compute_prefix(const char *pattern, int next[]) {
 
     next[0] = j;
     for (i = 1; i < m; i++) {
+        // 不匹配时回溯
         while (j > -1 && pattern[j + 1] != pattern[i]) j = next[j];
-
+        // 匹配时j++
         if (pattern[i] == pattern[j + 1]) j++;
         next[i] = j;
     }
@@ -254,14 +276,13 @@ int kmp(const char *text, const char *pattern) {
 
     for (i = 0; i < n; i++) {
         while (j > -1 && pattern[j + 1] != text[i]) j = next[j];
-
         if (text[i] == pattern[j + 1]) j++;
-        if (j == m - 1) {
+        if (j == m - 1) { // 全部匹配结束
             free(next);
             return i-j;
         }
     }
-
+    // 匹配失败
     free(next);
     return -1;
 }
@@ -278,8 +299,47 @@ int main(int argc, char *argv[]) {
 }
 \end{Codex}
 
+\begin{NoteCode}
+#include<iostream>
+#include<string>
+using namespace std;
 
-\subsection{Boyer-Moore算法}
+void calculte_next(const string &str, int *next){
+    const int len = str.length();
+    next[0] = 0;
+    for(int i = 1, j = 0; i < len; ++i){
+        while(j > 0 && str[j] != str[i]) j = next[j];
+        if(str[j] == str[i]) j++;
+        next[i] = j;
+    }
+}
+
+int KMP(const string &text, const string &str){
+    if(text.length() == 0 || str.length() == 0) return 0;
+
+    const int len_text = text.length();
+    const int len_str = str.length();
+    int *next = new int[len_text];
+    calculte_next(str, next);
+
+    for(int i = 0, j = 0; i < len_text; ++i){
+        while (j > 0 && str[j] != text[i]) j = next[j - 1];
+        if (str[j] == text[i]) j++;
+        if (j == len_str) return i - j + 1;
+    }
+    return -1;
+}
+
+int main(){
+    string text = "ABC ABCDAB ABCDABCDABDE";
+    string str = "ABCDABD";
+    cout << KMP(text, str) << endl;
+    return 0;
+}
+\end{NoteCode}
+
+
+\subsection{Boyer-Moore算法\Note{暂时先不看2021/4/4}}
 详细解释请参考《算法》\footnote{《算法》，Robert Sedgewick，人民邮电出版社，\myurl{http://book.douban.com/subject/10432347/}}第5.3.4节。
 
 推荐网上的几篇比较好的博客，“字符串匹配的Boyer-Moore算法” \myurl{http://www.ruanyifeng.com/blog/2013/05/boyer-moore_string_search_algorithm.html}，图文并茂，非常通俗易懂，作者是阮一峰；Boyer-Moore algorithm, \myurl{http://www-igm.univ-mlv.fr/~lecroq/string/node14.html}。
@@ -409,7 +469,7 @@ int main() {
 \end{Codex}
 
 
-\subsection{Rabin-Karp算法}
+\subsection{Rabin-Karp算法\Note{暂时先不看2021/4/4}}
 详细解释请参考《算法》\footnote{《算法》，Robert Sedgewick，人民邮电出版社，\myurl{http://book.douban.com/subject/10432347/}}第5.3.5节。
 
 Rabin-Karp算法的C语言实现如下。

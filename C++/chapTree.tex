@@ -175,10 +175,12 @@ void level_order(const binary_tree_node_t *root,
 }
 \end{Codex}
 
+\Note{\fn{int (*visit)(const binary_tree_node_t*)}是函数指针}
+
 \section{线索二叉树} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 二叉树中存在很多空指针，可以利用这些空指针，指向其前驱或者后继。这种利用起来的空指针称为线索，这种改进后的二叉树称为线索二叉树(threaded binary tree)。
 
-一棵n个结点的二叉树含有n+1个空指针。这是因为，假设叶子节点数为$n_0$，度为1的节点数为$n_1$，度为2的节点数为$n_2$，每个叶子节点有2个空指针，每个度为1的节点有1个空指针，则空指针的总数为$2n_0+n_1$，又有$n_0=n_2+1$（留给读者证明），因此空指针总数为$2n_0+n_1=n_0+n_2+1+n_1=n_0+n_1+n_2+1=n+1$。
+一棵n个结点的二叉树含有n+1个空指针。这是因为，假设叶子节点数为$n_0$，度为1的节点数为$n_1$，度为2的节点数为$n_2$，每个叶子节点有2个空指针，每个度为1的节点有1个空指针，则空指针的总数为$2n_0+n_1$，又有$n_0=n_2+1$（留给读者证明\Note{总的度为:$2n_2+n_1 = n_0 + n_1 + n_2 - 1$}），因此空指针总数为$2n_0+n_1=n_0+n_2+1+n_1=n_0+n_1+n_2+1=n+1$。
 
 在二叉树线索化过程中，通常规定，若无左子树，令left指向前驱，若无右子树，令rchild指向后继。还需要增加两个标志域表示当前指针是不是线索，例如ltag=1，表示left指向的是前驱，ltag=0，表示left指向的是左孩子，rtag类似。
 
@@ -307,6 +309,89 @@ static tbt_node_t *next(const tbt_node_t *p) {
 
 中序线索二叉树最简单，在中序线索的基础上稍加修改就可以实现先序，后续就要再费点心思了。
 
+\begin{NoteCode}
+// 建立前序线索树
+template<class T>
+void pre_thread(Node<T> *root, Node<T> *&pre){ // 对指针pre引用
+    if(root == nullptr) return;
+
+    if(root->left == nullptr){  // 左子树为空，建立前驱
+        root->left = pre;
+        root->ltag = true;
+    }
+    // 为前驱建立后继线索，即指向当前结点
+    if( pre != nullptr && pre->right == nullptr){
+        pre->right = root;
+        pre->rtag = true;
+    }
+    pre = root;
+    if( !root->ltag ) pre_thread(root->left, pre); // 线索化左子树
+    if( !root->rtag ) pre_thread(root->right, pre);
+}
+template<class T>
+const Node<T>* first(const Node<T> *root){ return root; }
+
+template<class T>
+const Node<T>* next(const Node<T> *root){
+    if( root->rtag ) return root->right;
+    else return first(root->left);
+} 
+\end{NoteCode}
+
+
+\begin{NoteCode}
+// 建立后序线索树
+template<class T>
+void post_thread(Node<T> *root, Node<T> *&pre){ // 对指针pre引用
+    if(root == nullptr) return;
+
+    if( !root->ltag ) post_thread(root->left, pre); // 线索化左子树
+    if( !root->rtag ) post_thread(root->right, pre);
+
+    if(root->left == nullptr){  // 左子树为空，建立前驱
+        root->left = pre;
+        root->ltag = true;
+    }
+    // 为前驱建立后继线索，即指向当前结点
+    if( pre != nullptr && pre->right == nullptr){
+        pre->right = root;
+        pre->rtag = true;
+    }
+    pre = root;
+}
+
+template<class T>
+void create_post_thread(Node<T> *root){
+    Node<T> *pre = nullptr;
+    if(root != nullptr){
+        post_thread(root, pre);
+    }
+}
+
+// 根据后序线索树遍历
+template<class T>
+void post_order(const Node<T> *root, void (*visit)(const Node<T>*)){
+    const Node<T> *p = root, *pre = nullptr;
+    while(p != nullptr){
+        while( !p->ltag ) p = p->left;  // 最左
+        while( p->rtag ){               // 直接访问后继
+            visit(p);
+            pre = p;
+            p = p->right;            
+        }
+        // 最后访问根结点
+        if(p == root){ visit(p); break; }
+        while(p != nullptr && p->right == pre ){ // 访问子树根
+            visit(p);
+            pre = p;
+            p = p->parent;
+        }
+        // 左子树遍历完毕，转右子树
+        if(p != nullptr && !p->rtag) p = p->right;
+    }
+}
+\end{NoteCode}
+
 
 \section{Morris Traversal} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 通过前面第\S \ref{sec:binaryTreeTraversal}节，我们知道，实现二叉树的前序（preorder）、中序（inorder）、后序（postorder）遍历有两个常用的方法，一是递归(recursive)，二是栈(stack+iterative)。这两种方法都是O(n)的空间复杂度。
@@ -319,8 +404,8 @@ Morris中序遍历的步骤如下：
 \item 初始化当前节点cur为root节点
 \item 如果cur没有左孩子，则输出当前节点并将其右孩子作为当前节点，即cur = cur->rchild。
 \item 如果cur有左孩子，则寻找cur的前驱，即cur的左子树的最右下角结点。\\
-   a) 如果前驱节点的右孩子为空，将它的右孩子指向当前节点，当前节点更新为当前节点的左孩子。\\
-   b) 如果前驱节点的右孩子为当前节点，将它的右孩子重新设为空（恢复树的形状），输出当前节点，当前节点更新为当前节点的右孩子。
+   a) 如果前驱节点的右孩子为空\Note{中序遍历下，该结点下一个就是cur}，将它的右孩子指向当前节点\Note{添加中序线索，如1行1列子图，5指向6}，当前节点更新为当前节点的左孩子\Note{cur = cur->lchild，开始遍历左子树，注意此时不访问根结点}。\\
+   b) 如果前驱节点的右孩子为当前节点\Note{此时遍历完左子树返回到子树根结点了，如1行4列子图}，将它的右孩子重新设为空（恢复树的形状）\Note{删除中序线索}，输出当前节点\Note{正式访问子树根}，当前节点更新为当前节点的右孩子\Note{开始访问右子树}。
 \item 重复2、3步骤，直到cur为空。
 \end{enumerate}
 如图~\ref{fig:inorderMorris}所示，cur表示当前节点，深色节点表示该节点已输出。
@@ -343,7 +428,7 @@ Morris先序遍历的步骤如下：
 \begin{enumerate}
 \item 初始化当前节点cur为root节点
 \item 如果cur没有左孩子，则输出当前节点并将其右孩子作为当前节点，即cur = cur->rchild。
-\item 如果cur有左孩子，则寻找cur的前驱，即cur的左子树的最右下角结点。\\
+\item 如果cur有左孩子，则寻找cur的前驱\Note{这里的“前驱”实际上是中序遍历时cur的前驱，也是前序遍历时遍历完cur左子树的最后一个结点}，即cur的左子树的最右下角结点。\\
    a) 如果前驱节点的右孩子为空，将它的右孩子指向当前节点，\textbf{输出当前节点（在这里输出，这是与中序遍历唯一的不同点）}当前节点更新为当前节点的左孩子。\\
    b) 如果前驱节点的右孩子为当前节点，将它的右孩子重新设为空（恢复树的形状），\sout{输出当前节点，}当前节点更新为当前节点的右孩子。
 \item 重复2、3步骤，直到cur为空。
@@ -364,10 +449,10 @@ Morris后续遍历稍微复杂，需要建立一个临时节点dump，令其左�
 Morris后序遍历的步骤如下：
 \begin{enumerate}
 \item 初始化当前节点cur为root节点
-\item 如果cur没有左孩子，则\sout{输出当前节点并}将其右孩子作为当前节点，即cur = cur->rchild。
+\item 如果cur没有左孩子，则\sout{输出当前节点并}将其右孩子作为当前节点\Note{后序要最后输出根结点}，即cur = cur->rchild。
 \item 如果cur有左孩子，则寻找cur的前驱，即cur的左子树的最右下角结点。\\
    a) 如果前驱节点的右孩子为空，将它的右孩子指向当前节点，当前节点更新为当前节点的左孩子。\\
-   b) 如果前驱节点的右孩子为当前节点，将它的右孩子重新设为空（恢复树的形状），\sout{输出当前节点，}\textbf{倒序输出从当前节点的左孩子到该前驱节点这条路径上的所有节点。}当前节点更新为当前节点的右孩子。
+   b) 如果前驱节点的右孩子为当前节点，将它的右孩子重新设为空（恢复树的形状），\sout{输出当前节点，}\textbf{倒序输出从当前节点的左孩子到该前驱节点这条路径上\Note{沿着右结点方向}的所有节点。}当前节点更新为当前节点的右孩子。
 \item 重复2、3步骤，直到cur为空。
 \end{enumerate}
 如图~\ref{fig:postorderMorris}所示。
@@ -520,8 +605,12 @@ void post_order_morris(bt_node_t *root, int (*visit)(bt_node_t*)) {
 static void reverse(bt_node_t *from, bt_node_t *to) {
     bt_node_t *x = from, *y = from->right, *z;
     if (from == to) return;
-
-    while (x != to) {
+    
+    // -----------------------------------
+    // 需将from的右子树指针打断，避免bug
+    x->right = NULL;
+    // -----------------------------------
+    while (x != to) { // 将结点依次插入x之前（类似列表的插入）
         z = y->right;
         y->right = x;
         x = y;
@@ -595,8 +684,56 @@ int main() {
 }
 \end{Codex}
 
+\Note{上述代码中的\fn{prev}指针都可删除，不需要。}
+\begin{NoteCode}
+template<class T, class F>
+void post_order_morris(Node<T> *root, F visit){
+    Node<T> *dummy = new Node<T>;
+    dummy->left = root;
+
+    Node<T> *cur = dummy;
+    while (cur != nullptr){
+        if(cur->left == nullptr){ // 左子树为空，直接进入右子树，根结点暂时不访问
+            cur = cur->right;
+        }else{
+            Node<T> *node = cur->left; // 找到左子树最右结点
+            while(node->right != nullptr && node->right != cur) node = node->right;
+            if( node->right == nullptr ){ // 建立线索，暂时不访问cur，进入左子树
+                node->right = cur;
+                cur = cur->left;
+            }else{
+                // 已有线索，逆序访问右指针链，便删除线索
+                visit_reverse(cur->left, node, visit);
+                node->right = nullptr;
+                cur = cur->right;
+            }
+        }
+    }
+}
+\end{NoteCode}
+
 
 \section{重建二叉树} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{NoteCode}
+/**
+* @brief 递归层次建立树
+*
+*/
+template<class T>
+Node<T>* build_tree_level(const vector<T> &v, int idx){
+    if(v.empty()) return nullptr;
+    Node<T> *root = new Node<T>(v[idx]);
+    if( (idx << 1) + 1 < v.size()) root->left = build_tree_level(v, (idx << 1) + 1 );
+    if( (idx << 1) + 2 < v.size()) root->right = build_tree_level(v, (idx << 1) + 2 );
+    return root;
+}
+// ...
+// vector<int> v = {1, 2, 3, 4, 5, 6, 7};
+// Node<int> *root = build_tree_level(v, 0);
+\end{NoteCode}
+    
+
 \begin{Codex}[label=binary_tree_rebuild.c]
 #include <stdio.h>
 #include <stdlib.h>
@@ -650,7 +787,6 @@ typedef struct bt_node_t {
     struct bt_node_t *left; /* 左孩子 */
     struct bt_node_t *right; /* 右孩子 */
 } bt_node_t;
-
 /**
  * @brief 给定前序遍历和中序遍历，重建二叉树.
  *
@@ -706,6 +842,35 @@ int main() {
 }
 \end{Codex}
 
+\begin{NoteCode}
+template<class T>
+Node<T>* build_pre_in(const vector<T> &pvec, const vector<T> &ivec,int len, int pb, int ib){
+    // 前序pvec[pb, pb+1, ...., pb+len]
+    // 中序ivec[ib, ib+1, ...., ib+len]
+    Node<T> *root = new Node<T>(pvec[pb]);
+    if(len == 1) return root;
+    int new_ib = ib;
+
+    while( new_ib < ib + len && ivec[new_ib] != pvec[pb]) ++new_ib;
+    if(new_ib == len) return nullptr;
+    
+    int left_len = new_ib - ib;
+    
+    // 前序pvec[pb+1, ...., pb+left_len]
+    // 中序ivec[ib, ib+1, ...., ib+left_len-1]
+    root->left = build_pre_in(pvec, ivec, left_len, pb + 1, ib);
+
+    // 前序pvec[pb+left_len+1, pb+left_len+2, ...., pb+left_len+right_len]
+    // 中序ivec[new_ib+1, new_ib+2, ...., new_ib+right_len]
+    root->right = build_pre_in(pvec, ivec, len - left_len - 1, pb + left_len + 1, new_ib + 1);
+
+    return root;
+} 
+// ...
+// vector<int> pre_v = {1, 2, 4, 5, 3, 6, 7};
+// vector<int> in_v = {4, 2, 5, 1, 6, 3, 7};
+// Node<int> *root = build_pre_in(pre_v, in_v, pre_v.size(), 0, 0);
+\end{NoteCode}
 
 \section{堆} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -1,4 +1,5 @@
-\documentclass[10pt,adobefonts,fancyhdr,hyperref,UTF8]{ctexbook}
+% \documentclass[8pt,adobefonts,fancyhdr,hyperref,UTF8]{ctexbook}
+\documentclass[10pt,fancyhdr,hyperref,UTF8]{ctexbook}
 
 \usepackage{multirow}
 % for \soul 删除线
@@ -9,6 +10,42 @@
 \makeatletter
 \input{format.cls}
 \makeatother
+
+%--------------------------------------------------------------
+\usepackage{color}
+\newcommand{\Note}[1]{\textcolor{blue}{【注：#1】}} %% 笔记
+\newcommand{\Hl}[1]{\textcolor{red}{#1}} %% Highlight
+\newcommand{\Dl}{---------------------------------------------------------------------分割线-------------------------------------------------------------------} %% Dividingline
+\usepackage{listings}
+\lstnewenvironment{NoteCode}{
+\lstset{ %
+backgroundcolor=\color{white},   % choose the background color
+basicstyle=\small,        % size of fonts used for the code
+columns=fullflexible,
+breaklines=true,                 % automatic line breaking only at whitespace
+captionpos=b,                    % sets the caption-position to bottom
+tabsize=4,
+commentstyle=\color{magenta},    % comment style
+escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+keywordstyle=\color{blue},       % keyword style
+stringstyle=\color{green}\ttfamily,     % string literal style
+frame=single, % none
+% rulesepcolor=\color{red!20!green!20!blue!20},
+% identifierstyle=\color{red},
+language=C++
+}}{}
+
+%---------------------------上面的现实注释，下面的不现实注释---------------
+
+% \newcommand{\Note}[1]{} %% 笔记 (注释掉)
+% \newcommand{\Hl}[1]{#1} %% Highlight (注释掉)
+% \newcommand{\Dl}[1]{} %% Dividingline (注释掉)
+% \usepackage{comment}
+% \newenvironment{NoteCode}{}{}
+% \excludecomment{NoteCode}
+%-------------------------------------------------------------
+
+
 
 \begin{document}
 \sloppy
@@ -27,7 +64,7 @@
 
 \frontmatter % 开始前言目录，页码用罗马数字
 
-\include{title}
+% \include{title}
 
 \tableofcontents
 
@@ -35,23 +72,23 @@
 
 \graphicspath{{diagrams/}}
 
-\include{chapProgrammingTrick}
-\include{chapLinearList}
-\include{chapString}
-\include{chapStackAndQueue}
+% \include{chapProgrammingTrick}
+% \include{chapLinearList}
+% \include{chapString}
+% \include{chapStackAndQueue}
 \include{chapTree}
-\include{chapSearching}
-\include{chapSorting}
-\include{chapBruteforce}
-\include{chapBFS}
-\include{chapDFS}
-\include{chapDivideAndConquer}
-\include{chapGreedy}
-\include{chapDynamicProgramming}
-\include{chapGraph}
-\include{chapMath}
-\include{chapBigInt}
-\include{chapFundamental}
+% \include{chapSearching}
+% \include{chapSorting}
+% \include{chapBruteforce}
+% \include{chapBFS}
+% \include{chapDFS}
+% \include{chapDivideAndConquer}
+% \include{chapGreedy}
+% \include{chapDynamicProgramming}
+% \include{chapGraph}
+% \include{chapMath}
+% \include{chapBigInt}
+% \include{chapFundamental}
 
 \appendix % 开始附录，章用字母编号
 \printindex

@@ -6,6 +6,31 @@
 
 \section{栈} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\Note{std::stack Defined in header <stack>}
+\begin{NoteCode}
+template <class Type, class Container= deque <Type>>
+class stack
+\end{NoteCode}
+
+\Note{\\
+\textbf{parameters}: \\
+\fn{Type}
+The element data type to be stored in the stack.\\
+\fn{Container}
+The type of the underlying container used to implement the stack. The default value is the class deque<Type>.\\
+\\
+\textbf{Typedefs}: \\
+\underline{container_type}	A type that provides the base container to be adapted by a stack.\\
+\underline{size_type}	An unsigned integer type that can represent the number of elements in a stack.\\
+\underline{value_type}	A type that represents the type of object stored as an element in a stack.\\
+\\
+\textbf{Member Function}: \\
+\underline{empty}	Tests if the stack is empty.\\
+\underline{pop}	Removes the element from the top of the stack.\\
+\underline{push}	Adds an element to the top of the stack.\\
+\underline{size}	Returns the number of elements in the stack.\\
+\underline{top}	Returns a reference to an element at the top of the stack.\\
+}
 
 \subsection{汉诺塔问题}
 
@@ -194,6 +219,95 @@ int restore(const char s[MAXN], const int d) {
 
 \section{队列} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\Note{std::queue Defined in header <queue>}
+\begin{NoteCode}
+template <class Type, class Container = deque <Type>>
+class queue
+\end{NoteCode}
+
+\Note{\\
+\textbf{parameters}: \\
+\fn{Type}
+The element data type to be stored in the queue.\\
+\fn{Container}
+The type of the underlying container used to implement the queue.\\
+\\
+\textbf{Typedefs}: \\
+\underline{container_type}	A type that provides the base container to be adapted by a queue.\\
+\underline{size_type}	An unsigned integer type that can represent the number of elements in a queue.\\
+\underline{value_type}	A type that represents the type of object stored as an element in a queue.\\
+\\
+\textbf{Member Function}: \\
+\underline{back}	Returns a reference to the last and most recently added element at the back of the queue.\\
+\underline{empty}	Tests if the queue is empty.\\
+\underline{front}	Returns a reference to the first element at the front of the queue.\\
+\underline{pop}	Removes an element from the front of the queue.\\
+\underline{push} Adds an element to the back of the queue.\\
+\underline{size}	Returns the number of elements in the queue.\\
+}
+
+\Dl
+
+\Note{std::priority_queue Defined in header <queue>}
+\begin{NoteCode}
+template <class Type, class Container= vector <Type>, class Compare= less <typename Container ::value_type>>
+class priority_queue
+\end{NoteCode}
+
+\Note{\\
+\textbf{parameters}: \\
+\fn{Type}
+The element data type to be stored in the priority_queue.\\
+\fn{Container}
+The type of the underlying container used to implement the priority_queue.\\
+\fn{Compare}
+The type that provides a function object that can compare two element values as sort keys to determine their relative order in the priority_queue. This argument is optional and the binary predicate \fn{less<typename Container::value_type>} is the default value.
+\\
+\textbf{Typedefs}: \\
+\underline{container_type}	A type that provides the base container to be adapted by a priority_queue.\\
+\underline{size_type}	An unsigned integer type that can represent the number of elements in a priority_queue.\\
+\underline{value_type}	A type that represents the type of object stored as an element in a priority_queue.\\
+\\
+\textbf{Member Function}: \\
+\underline{empty}	Tests if the priority_queue is empty.
+\underline{pop}	Removes the largest element of the priority_queue from the top position.
+\underline{push}	Adds an element to the priority queue based on the priority of the element from operator<.
+\underline{size}	Returns the number of elements in the priority_queue.
+\underline{top}	Returns a const reference to the largest element at the top of the priority_queue.\\
+}
+
+\begin{NoteCode}
+#include <functional>
+#include <queue>
+#include <vector>
+#include <iostream>
+ 
+template<typename T>
+void print_queue(T q) { // NB: pass by value so the print uses a copy
+    while(!q.empty()) {
+        std::cout << q.top() << ' ';
+        q.pop();
+    }
+    std::cout << '\n';
+}
+ 
+int main() {
+    std::priority_queue<int> q;
+    const auto data = {1,8,5,6,3,4,0,9,7,2};
+    for(int n : data) q.push(n);
+ 
+    print_queue(q); // 9 8 7 6 5 4 3 2 1 0 
+    std::priority_queue<int, std::vector<int>, std::greater<int>> q2(data.begin(), data.end());
+    print_queue(q2); // 0 1 2 3 4 5 6 7 8 9 
+ 
+    // Using lambda to compare elements.
+    auto cmp = [](int left, int right) { return (left ^ 1) < (right ^ 1); };
+    std::priority_queue<int, std::vector<int>, decltype(cmp)> q3(cmp);
+    for(int n : data) q3.push(n);
+    print_queue(q3); // 8 9 6 7 4 5 2 3 0 1
+}
+\end{NoteCode}
+
 
 \subsection{打印杨辉三角}
 
@@ -235,3 +349,4 @@ void yanghui_triangle(const int n) {
     }
 }
 \end{Codex}
+\Note{层序遍历}
