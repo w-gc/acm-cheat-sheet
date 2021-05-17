@@ -1,5 +1,180 @@
 \chapter{字符串}
 
+\section{ACM题输入处理}
+\Note{此章节均为补充内容。主要来源于\myurl{https://blog.csdn.net/jeffscott/article/details/107969136}}
+
+\Note{删除字符串}
+\begin{NoteCode}
+string str1="God bless you!";
+string str2="Father be with you!";
+str1.erase(3);//删除[3]及以后的字符，并返回新的字符串
+str2.erase(3,5);//删除从 [3] 开始的后 5 个字符，并返回新字符串
+// God
+// Fate with you!
+\end{NoteCode}
+
+\Note{追加字符(串)}
+\begin{NoteCode}
+string str = "God bless you!";
+str.push_back('&');//在str的末尾添加字符'&'，注意只能是字符，不能是字符串如"&"
+str.append("Father be with you!");//在 str 末尾添加字符串
+// God bless you!&
+// God bless you!&Father be with you!
+\end{NoteCode}
+
+\Note{插入字符串}
+\begin{NoteCode}
+string str = "God bless you!";
+str.insert(0,"Father&");//从位置0开始添加字符串
+str.insert(0,"Maybe",3);//从位置0开始插入字符串"Maybe”的前三个即“May”
+str.insert(0,"You Wish",4,4);//从位置0开始插入子串"You Wish"从[4]开始的后四个字符，即"Wish"
+// Father&God bless you!
+// MayFather&God bless you!
+// WishMayFather&God bless you!
+\end{NoteCode}
+
+\Note{替换字符串}
+\begin{NoteCode}
+string str = "God bless you!";
+str.replace(0,3,"Father");//把str从[0]开始的3个字符，即God替换为Father
+str.replace(0,6,"God be with you!",3);//把str从[0]开始的6个字符,即Father替换God
+// Father bless you!
+// God bless you!
+\end{NoteCode}
+
+
+\Note{获取字符串子串}
+\begin{NoteCode}
+string str = "God bless you!";
+cout<<str.substr(4)<<endl;//返回从[4]开始的后所有字符，即bless you!
+cout<<str.substr(4,5)<<endl;//返回[4]以后的5个字符，即bless
+\end{NoteCode}
+
+\Note{查找子串}
+\begin{NoteCode}
+string str = "God bless you!";
+cout<<str.find("God")<<endl; // 返回God在str中的起始位置，即0
+cout<<str.find("God",3)<<endl; // 在 str[3]~str[n-1] 范围内查找并返回字符串 God 在 str 的位置，即npos=18446744073709551615
+cout<<string::npos<<endl; // 18446744073709551615
+cout<<str.rfind("God",3)<<endl; // 在 str[0]~str[3] 范围内查找并返回字符串 God 在 str 的位置，即0
+\end{NoteCode}
+
+\Note{去除一个字符串中的所有空格}
+\begin{NoteCode}
+/*返回去除空格的字符串*/
+string rmSpace(string s){
+    while(s.find(" ")!=s.npos)
+        s.replace(s.find(" "),1,"");
+    return s;
+}
+\end{NoteCode}
+
+\Note{将一个字符串统一大小写}
+\begin{NoteCode}
+string str;
+getline(cin,str);
+transform(str.begin(),str.end(),str.begin(),::toupper);//统一转换为大写
+transform(str.begin(),str.end(),str.begin(),::tolower);//统一转换为小写
+\end{NoteCode}
+
+\Note{字符串分割}
+\begin{NoteCode}
+#include<iostream>
+#include<string>
+#include<vector>
+ 
+vector<string> split(const string &str, conststring &pattern){
+    vector<string> res;
+    if(str == "") return res;
+    //在字符串末尾也加入分隔符，方便截取最后一段
+    string strs = str + pattern;
+    size_t pos = strs.find(pattern);
+    while(pos != strs.npos){
+        string temp = strs.substr(0, pos);
+        res.push_back(temp);
+        //去掉已分割的字符串,在剩下的字符串中进行分割
+        strs = strs.substr(pos+1, strs.size());
+        pos = strs.find(pattern);
+    }
+    return res;
+}
+\end{NoteCode}
+
+\Note{字符串类型转换}
+\begin{NoteCode}
+#include<iostream>
+#include<string>
+using namespace std;
+
+int main(){
+    //int --> string
+    int i = 5;
+    string s = to_string(i);
+    cout << s << endl;
+    //double --> string
+    double d = 3.14;
+    cout << to_string(d) << endl;
+    //long --> string
+    long l = 123234567;
+    cout << to_string(l) << endl;
+    //char --> string
+    char c = 'a';
+    cout << to_string(c) << endl;   //自动转换成int类型的参数
+    //char --> string
+    string cStr; cStr += c;
+    cout << cStr << endl;
+ 
+    s = "123.257";
+    //string --> int;
+    cout << stoi(s) << endl;
+    //string --> long
+    cout << stol(s) << endl;
+    //string --> float
+    cout << stof(s) << endl;
+    //string --> doubel
+    cout << stod(s) << endl;
+ 
+  return 0;
+}
+\end{NoteCode}
+
+\Note{string转char*}
+\begin{NoteCode}
+string str;
+char *c = str.c_str();
+\end{NoteCode}
+
+\Note{判断字符的类型}
+\begin{NoteCode}
+cout << isdigit('8') << endl; // 判断是否是数字
+cout << isalnum('g') << endl; // 判断是否是字母或数字
+cout << isspace(' ') << endl; // 判断是否是空格
+cout << islower('a') << endl; // 判断是否是小写
+cout << isupper('A') << endl; // 判断是否是大写
+cout << isalpha('y') << endl; // 判断是否是字母
+cout << tolower('G') << endl; // 将大写字母转为小写字母
+\end{NoteCode}
+
+\Note{[1,2,3,4]}
+\begin{NoteCode}
+#include<sstream>
+// ... 
+int main(){
+    string str;
+    getline(cin, str);
+    str = str.substr(1, str.size() - 2) + ",";
+    string tmp;
+    stringstream ss(str);
+
+    while( getline(ss, tmp, ',') ) cout << tmp;
+    return 0;
+}
+// [1,2,3,4]
+// 1234 
+\end{NoteCode}
+
+
+
 
 \section{字符串API} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 面试中经常会出现，现场编写 \fn{strcpy, strlen, strstr, atoi} 等库函数的题目。这类题目看起来简单，实则难度很大，区分都很高，很容易考察出你的编程功底，是面试官的最爱。

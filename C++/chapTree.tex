@@ -177,6 +177,44 @@ void level_order(const binary_tree_node_t *root,
 
 \Note{\fn{int (*visit)(const binary_tree_node_t*)}是函数指针}
 
+\begin{NoteCode}
+vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+    vector<vector<int>> ans;
+    if (!root) return ans;
+
+    queue<TreeNode*> nodeQueue;
+    nodeQueue.push(root);
+    bool isOrderLeft = true;
+
+    while (!nodeQueue.empty()) {
+        deque<int> levelList;
+        int size = nodeQueue.size();
+        for (int i = 0; i < size; ++i) {
+            auto node = nodeQueue.front();
+            nodeQueue.pop();
+            if (isOrderLeft) {
+                levelList.push_back(node->val);
+            } else {
+                levelList.push_front(node->val);
+            }
+            if (node->left) {
+                nodeQueue.push(node->left);
+            }
+            if (node->right) {
+                nodeQueue.push(node->right);
+            }
+        }
+        ans.emplace_back(vector<int>{levelList.begin(), levelList.end()});
+        isOrderLeft = !isOrderLeft;
+    }
+    return ans;
+}
+/*作者：LeetCode-Solution
+链接：https://leetcode-cn.com/problems/binary-tree-zigzag-level-order-traversal/solution/er-cha-shu-de-ju-chi-xing-ceng-xu-bian-l-qsun/
+来源：力扣（LeetCode）
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。*/
+\end{NoteCode}
+
 \section{线索二叉树} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 二叉树中存在很多空指针，可以利用这些空指针，指向其前驱或者后继。这种利用起来的空指针称为线索，这种改进后的二叉树称为线索二叉树(threaded binary tree)。
 
@@ -872,6 +910,35 @@ Node<T>* build_pre_in(const vector<T> &pvec, const vector<T> &ivec,int len, int 
 // Node<int> *root = build_pre_in(pre_v, in_v, pre_v.size(), 0, 0);
 \end{NoteCode}
 
+\begin{NoteCode}
+template<class T>
+Node<T>* build_post_in(const vector<T> &pvec, const vector<T> &ivec, int len, int pb, int ib){
+    // 后序pvec[pb, pb+1, ...., pb+len-1]
+    // 中序ivec[ib, ib+1, ...., ib+len-1]
+    Node<T> *root = new Node<T>(pvec[pb + len - 1]);
+    if(len == 1) return root;
+
+    int new_ib = ib;
+    while( new_ib < ib + len && ivec[new_ib] != root->val) ++new_ib;
+    if(new_ib == len) return nullptr;
+    
+    int left_len = new_ib - ib;
+    
+    // 后序pvec[pb, ...., pb+left_len-1]
+    // 中序ivec[ib, ib+1, ...., ib+left_len-1]
+    root->left = build_post_in(pvec, ivec, left_len, pb, ib);
+
+    // 后序pvec[pb+left_len, pb+left_len+2, ...., pb+len - 2]
+    // 中序ivec[new_ib+1, new_ib+2, ...., new_ib+right_len]
+    root->right = build_post_in(pvec, ivec, len - left_len - 1, pb + left_len, new_ib + 1);
+
+    return root;
+}
+// vector<int> in_v = {4, 2, 5, 1, 6, 3, 7};
+// vector<int> post_v = {4, 5, 2, 6, 7, 3, 1};
+// Node<int> *root = build_post_in(post_v, in_v, post_v.size(), 0, 0);
+\end{NoteCode}
+
 \section{堆} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{原理和实现}
@@ -1051,6 +1118,127 @@ heap_elem_t heap_top(const heap_t *h) {
 }
 \end{Codex}
 
+\begin{NoteCode}
+#include<iostream>
+#include<vector>
+#include<algorithm>
+using namespace std;
+
+template<class heap_elems_type>
+class Heap{
+public:
+    typedef heap_elems_type value_type;
+    typedef value_type*         pointer;
+    typedef const value_type*   const_pointer;
+    typedef value_type&         reference;
+    typedef const value_type&   const_reference;
+    typedef size_t              size_type;
+    typedef ptrdiff_t           difference_type;
+    typedef const value_type*   const_iterator;
+    typedef value_type*         iterator;
+
+public:
+    void set_cmp(bool (*cmp)(const_iterator, const_iterator));
+    bool empty();
+    size_type size(); 
+    void sift_down(const int start);
+    void sift_up(const int start);
+    void push(const value_type x);
+    void pop();
+    value_type top();
+
+    Heap(const int capacity, bool (*cmp)(const_iterator, const_iterator) );
+    ~Heap();
+private:
+    value_type *_elems;
+    size_type _size;
+    size_type _capacity;
+    bool (*_cmp)(const_iterator, const_iterator);
+};
+
+template<class T>
+void Heap<T>::set_cmp(bool (*cmp)(const_iterator a, const_iterator b) ){
+    return this->_elems = cmp;
+}
+
+template<class T>
+Heap<T>::Heap(const int capacity, bool (*cmp)(const_iterator a, const_iterator b))
+: _size(0), _capacity(capacity), _elems(new value_type[capacity]), _cmp(cmp) { }
+
+template<class T>
+Heap<T>::~Heap(){ delete _elems; }
+
+template<class T>
+bool Heap<T>::empty(){ return _size == 0; }
+
+template<class T>
+typename Heap<T>::size_type Heap<T>::size(){ return _size; }
+
+template<class T>
+void Heap<T>::sift_down(const int start){
+    int i = start;
+    const value_type tmp = _elems[start];
+    for(int j = 2 * i + 1; j < _size; j = 2 * j + 1){
+        // j指向两子女中小者
+        if( j < (_size - 1) && _cmp(&_elems[j], &_elems[j+1]) ) j++;
+
+        if( !_cmp(&tmp, &_elems[j]) ) break;
+        else{
+            // tmp >= _elems[j], 数据_elems[j]上移
+            _elems[i] = _elems[j];
+            i = j;
+        }
+    }
+    _elems[i] = tmp;
+}
+
+template<class T>
+void Heap<T>::sift_up(const int start){
+    int j = start;
+    int i = (j - 1) / 2; // j的父节点
+    const value_type tmp = _elems[start];
+    while (j > 0){
+        if( ! _cmp(&_elems[i], &tmp)) break;
+        else{
+            // _elems[i] >= tmp, 数据_elems[i]下移
+            _elems[j] = _elems[i];
+            j = i;
+            i = (i - 1) / 2;
+        }
+    }
+    _elems[j] = tmp;
+}
+
+template<class T>
+void Heap<T>::push(const value_type x){
+    if(_size == _capacity){
+        // TODO
+    }
+    _elems[_size] = x;
+    ++_size;
+    sift_up(_size - 1);
+}
+
+template<class T>
+void Heap<T>::pop(){
+    if(_size == 0) return;
+    _elems[0] = _elems[--_size];
+    sift_down(0);
+}
+
+template<class T>
+typename Heap<T>::value_type Heap<T>::top(){
+    if(_size <= 0){
+        // TODO
+    }
+    return _elems[0];
+}
+
+template<class T>
+bool compare(T a, T b){
+    return *a > *b;
+}
+\end{NoteCode}
 
 \subsection{最小的N个和} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{描述}
